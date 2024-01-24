@@ -25,6 +25,7 @@ class Window:
     def __init__(self, width: int, height: int):
         self._root = Tk()
         self._root.title("Maze Solver")
+        self._root.geometry(f"{width}x{height}+50+50")
         self._canvas = Canvas(self._root, width=width, height=height)
         self._canvas.pack()
         self._running = False
@@ -150,7 +151,6 @@ class Maze:
         self._win = win
 
         self._cells: list[list[Cell]] = []
-
         self._create_cells()
         self._break_entrance_and_exit()
 
@@ -183,7 +183,7 @@ class Maze:
     def _animate(self):
         if self._win:
             self._win.redraw()
-            time.sleep(0.002)
+            time.sleep(0.0005)
 
     def _break_entrance_and_exit(self):
         self._cells[0][0].has_top_wall = False
@@ -239,7 +239,7 @@ class Maze:
 
             self._draw_cell(i, j)
             self._draw_cell(new_cell[0], new_cell[1])
-            time.sleep(0.005)
+            time.sleep(0.0005)
             self._break_walls_r(new_cell[0], new_cell[1])
 
     def _has_cell_been_visited(self, i, j):
@@ -253,3 +253,101 @@ class Maze:
         for i in range(self._num_cols):
             for j in range(self._num_rows):
                 self._cells[i][j].visited = False
+
+    def solve(self):
+        return self._solve_r(0, 0)
+
+    def _solve_r(self, i, j):
+        self._animate()
+        time.sleep(0.005)
+
+        self._cells[i][j].visited = True
+
+        if i == len(self._cells) - 1 and j == len(self._cells[0]) - 1:
+            # end cell
+            print(
+                "reached end! ---------------------------------------------------------"
+            )
+            return True
+
+        next_cell = (i, j + 1)
+        is_blocked = self._cells[i][j].has_bottom_wall
+        if (
+            next_cell[0] >= 0
+            and next_cell[0] < len(self._cells)
+            and next_cell[1] >= 0
+            and next_cell[1] < len(self._cells[0])
+            and not is_blocked
+            and not self._cells[next_cell[0]][next_cell[1]].visited
+        ):
+            print("moving down")
+            self._cells[i][j].draw_move(self._cells[next_cell[0]][next_cell[1]])
+
+            if self._solve_r(next_cell[0], next_cell[1]):
+                return True
+            else:
+                self._cells[i][j].draw_move(
+                    self._cells[next_cell[0]][next_cell[1]], True
+                )
+
+        next_cell = (i, j - 1)
+        is_blocked = self._cells[i][j].has_top_wall
+        if (
+            next_cell[0] >= 0
+            and next_cell[0] < len(self._cells)
+            and next_cell[1] >= 0
+            and next_cell[1] < len(self._cells[0])
+            and not is_blocked
+            and not self._cells[next_cell[0]][next_cell[1]].visited
+        ):
+            print("moving up")
+            self._cells[i][j].draw_move(self._cells[next_cell[0]][next_cell[1]])
+
+            if self._solve_r(next_cell[0], next_cell[1]):
+                return True
+            else:
+                self._cells[i][j].draw_move(
+                    self._cells[next_cell[0]][next_cell[1]], True
+                )
+
+        next_cell = (i + 1, j)
+        is_blocked = self._cells[i][j].has_right_wall
+        if (
+            next_cell[0] >= 0
+            and next_cell[0] < len(self._cells)
+            and next_cell[1] >= 0
+            and next_cell[1] < len(self._cells[0])
+            and not is_blocked
+            and not self._cells[next_cell[0]][next_cell[1]].visited
+        ):
+            print("moving right ")
+            self._cells[i][j].draw_move(self._cells[next_cell[0]][next_cell[1]])
+
+            if self._solve_r(next_cell[0], next_cell[1]):
+                return True
+            else:
+                self._cells[i][j].draw_move(
+                    self._cells[next_cell[0]][next_cell[1]], True
+                )
+
+        next_cell = (i - 1, j)
+        is_blocked = self._cells[i][j].has_left_wall
+        if (
+            next_cell[0] >= 0
+            and next_cell[0] < len(self._cells)
+            and next_cell[1] >= 0
+            and next_cell[1] < len(self._cells[0])
+            and not is_blocked
+            and not self._cells[next_cell[0]][next_cell[1]].visited
+        ):
+            print("moving left")
+            self._cells[i][j].draw_move(self._cells[next_cell[0]][next_cell[1]])
+
+            if self._solve_r(next_cell[0], next_cell[1]):
+                return True
+            else:
+                self._cells[i][j].draw_move(
+                    self._cells[next_cell[0]][next_cell[1]], True
+                )
+        print("no options")
+        return False
