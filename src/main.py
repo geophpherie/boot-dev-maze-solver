@@ -2,7 +2,7 @@ from maze import Window, Maze, Line, Point, Cell
 
 
 def main():
-    win = Window(800, 600)
+    win = Window(840, 840)
     # win.draw_line(Line(Point(1, 1), Point(2, 2)), "red")
     # win.draw_line(Line(Point(8, 200), Point(300, 700)), "black")
 
@@ -21,7 +21,14 @@ def main():
     # cell_1.draw_move(cell_2)
 
     maze = Maze(
-        x1=5, y1=5, num_rows=20, num_cols=20, cell_size_x=20, cell_size_y=20, win=win
+        x1=5,
+        y1=5,
+        num_rows=20,
+        num_cols=20,
+        cell_size_x=40,
+        cell_size_y=40,
+        win=win,
+        seed=100,
     )
     win.wait_for_close()
 
